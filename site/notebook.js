@@ -1,12 +1,27 @@
-var geval = this.execScript || eval;
+function generateIframe(parameters) {
+    const iframe = document.createElement('iframe');
+    // iframe.width = '880';
+    // iframe.height = '425';
+    iframe.frameBorder = '0';
+    iframe.classList.add("rounded-md");
+
+    const url = '//unpkg.com/javascript-playgrounds@^1.0.0/public/index.html';
+    const encodedParams = encodeURIComponent(JSON.stringify(parameters));
+    const hashString = '#data=' + encodedParams;
+
+    iframe.src = url + hashString;
+
+    return {iframe: iframe, iframeString: iframe.outerHTML};
+}
+
+
 
 function addSiblingButton(element) {
     //
     const siblingButton = document.createElement("button");
-    siblingButton.innerText = "Run Code";
-    siblingButton.className = "flex ml-auto gap-2"
+    siblingButton.className = "flex ml-auto gap-2";
     // Create the SVG element
-    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("stroke", "currentColor");
     svg.setAttribute("fill", "none");
     svg.setAttribute("stroke-width", "2");
@@ -16,19 +31,20 @@ function addSiblingButton(element) {
     svg.setAttribute("class", "h-4 w-4");
     svg.setAttribute("height", "1em");
     svg.setAttribute("width", "1em");
-
+    
     // Create the path element
-    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", "M3.78 2L3 2.41v12l.78.42 9-6V8l-9-6zM4 13.48V3.35l7.6 5.07L4 13.48");
     path.setAttribute("fill", "#000000");
-
+    
     // Append the path element to the SVG element
     svg.appendChild(path);
-
+    
     // Append the SVG element to the document or any desired container
     siblingButton.appendChild(svg);
-
-
+    siblingButton.appendChild(document.createTextNode("Run Code"));
+    
+    
     siblingButton.addEventListener("click", () => {
         const codeElement = element.closest("pre").querySelector("code");
         if (codeElement) {
@@ -42,16 +58,32 @@ function addSiblingButton(element) {
                 }
             }).join("");
 
-            // Evaluate the concatenated code
-            const output = geval(concatenatedText);
-            console.log("Output:", output);
-
-            const outputPre = document.createElement("pre");
-            outputPre.innerText = "Output: " + output;
-            element.closest("pre").insertAdjacentElement("afterend", outputPre);
+            const parameters = {
+                code: `${concatenatedText}`,
+                preset: "react", // "react","html"
+                // styles: {
+                //     header: {
+                //         backgroundColor: 'red'
+                //     }
+                // },
+                // playground:{enable:true},
+                // panes: [
+                //     'editor', {
+                //         type: 'player',
+                //         platform: 'web',
+                //         modules: ['moment']
+                //     },
+                // ]
+            };
+            
+            
+            const playgroundIframe = generateIframe(parameters).iframe;
+            playgroundIframe.width = "100%";
+            playgroundIframe.height = "500px";
+            element.closest("pre").insertAdjacentElement("afterend", playgroundIframe);
         }
     });
-    element.insertAdjacentElement("afterend", siblingButton);
+    element.insertAdjacentElement('beforebegin', siblingButton);
 }
 
 function findPreElements(retries = 0) {
@@ -72,6 +104,9 @@ function findPreElements(retries = 0) {
 
     for (const preElement of preElements) {
         const buttonElement = preElement.querySelector("button");
+        buttonElement.classList.remove("ml-auto");
+        buttonElement.style.marginLeft = "5px";
+        console.log(buttonElement);
         if (buttonElement) {
             addSiblingButton(buttonElement);
         }

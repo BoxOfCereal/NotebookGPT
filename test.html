@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        
+    </head>
+    <body>
+        <div class="iframe"></div>
+    </body>
+    <script>
+        function generateIframe(parameters) {
+            const iframe = document.createElement('iframe');
+            iframe.width = '880';
+            iframe.height = '425';
+            iframe.frameBorder = '0';
+
+            const url = '//unpkg.com/javascript-playgrounds@^1.0.0/public/index.html';
+            const encodedParams = encodeURIComponent(JSON.stringify(parameters));
+            const hashString = '#data=' + encodedParams;
+
+            iframe.src = url + hashString;
+
+            return {iframe: iframe, iframeString: iframe.outerHTML};
+        }
+
+        const parameters = {
+            code: `console.log('Hello, world!')`,
+            preset:"react",//"react","html"
+            styles:{ header: { backgroundColor: 'red' } },
+            // playground:{enable:true},
+            panes:[ 'editor', { type: 'player', platform: 'web', modules: ['moment'] },],
+        };
+        const result = generateIframe(parameters);
+
+        // Add the iframe to the body of the HTML page
+        document.body.appendChild(result.iframe);
+    </script>
+</html>
